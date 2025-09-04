@@ -473,4 +473,55 @@
          */
         async function saveDailyCalendar() {
             if (!userId) {
-                cons
+                console.error("ユーザーが認証されていません。データを保存できません。");
+                return;
+            }
+
+            const date = currentDayData.date;
+            const status = statusSelect.value;
+            const memo = memoTextarea.value;
+            const dataToSave = { status, memo };
+            
+            try {
+                const docRef = doc(db, `artifacts/${appId}/users/${userId}/calendar-entries`, date);
+                await setDoc(docRef, dataToSave, { merge: true });
+                console.log("ドキュメントが日付:", date, "で正常に保存されました。");
+            } catch (error) {
+                console.error("ドキュメントの保存中にエラーが発生しました:", error);
+            }
+            closeModal();
+        }
+
+        /**
+         * 日付の情報をFirestoreから削除する
+         */
+        async function deleteDailyCalendar() {
+            if (!userId) {
+                console.error("ユーザーが認証されていません。データを削除できません。");
+                return;
+            }
+
+            const date = currentDayData.date;
+
+            try {
+                const docRef = doc(db, `artifacts/${appId}/users/${userId}/calendar-entries`, date);
+                await deleteDoc(docRef);
+                console.log("ドキュメントが日付:", date, "で正常に削除されました。");
+            } catch (error) {
+                console.error("ドキュメントの削除中にエラーが発生しました:", error);
+            }
+            closeModal();
+        }
+
+        // 初期設定
+        window.onload = initializeFirebase;
+
+        // ボタンから呼び出せるようにグローバルスコープに公開
+        window.changeMonth = changeMonth;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.saveDailyCalendar = saveDailyCalendar;
+        window.deleteDailyCalendar = deleteDailyCalendar;
+    </script>
+</body>
+</html>
