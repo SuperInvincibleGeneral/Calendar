@@ -4,92 +4,202 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>カレンダーウェブアプリ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+        @layer base {
+            :root {
+                --color-neutral-100: #f5f5f5;
+                --color-neutral-200: #e5e5e5;
+                --color-neutral-300: #d4d4d4;
+                --color-neutral-400: #a3a3a3;
+                --color-neutral-500: #737373;
+                --color-neutral-600: #525252;
+                --color-neutral-700: #404040;
+                --color-neutral-800: #262626;
+                --color-neutral-900: #171717;
+                --color-blue-500: #3b82f6;
+                --color-red-500: #ef4444;
+                --color-yellow-500: #eab308;
+                --color-green-500: #22c55e;
+                --color-green-200: #dcfce7;
+                --color-red-200: #fecaca;
+                --color-blue-200: #bfdbfe;
+            }
         }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            background-color: #e5e7eb;
-            border-radius: 0.5rem;
-            overflow: hidden;
-        }
-        .day-cell {
-            min-height: 120px;
-            background-color: #ffffff;
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            padding: 8px;
-        }
-        .day-cell:hover {
-            transform: scale(1.02);
-            z-index: 10;
-        }
-        .day-header {
-            background-color: #e5e7eb;
-            font-weight: 600;
-            padding: 8px 0;
-            text-align: center;
-        }
-        .weekday-cell {
-            color: #4b5563;
-        }
-        .saturday {
-            color: #3b82f6;
-        }
-        .sunday {
-            color: #ef4444;
-        }
-        .holiday {
-            background-color: #fecaca;
-        }
-        .working-day {
-            background-color: #dcfce7;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #ffffff;
-            padding: 24px;
-            border-radius: 0.75rem;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .memo-mark {
-            position: absolute;
-            top: 0.25rem;
-            right: 0.25rem;
-            color: #f59e0b;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .day-number {
-            font-size: 1.125rem;
-            font-weight: 600;
+        
+        @layer components {
+            .flex { display: flex; }
+            .items-center { align-items: center; }
+            .justify-between { justify-content: space-between; }
+            .justify-end { justify-content: flex-end; }
+            .justify-center { justify-content: center; }
+            .space-x-4 > :not([hidden]) ~ :not([hidden]) { margin-left: 1rem; }
+            .space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.5rem; }
+            .mb-6 { margin-bottom: 1.5rem; }
+            .mb-4 { margin-bottom: 1rem; }
+            .mt-auto { margin-top: auto; }
+            .px-4 { padding-left: 1rem; padding-right: 1rem; }
+            .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+            .p-2 { padding: 0.5rem; }
+            .p-6 { padding: 1.5rem; }
+            .p-8 { padding: 2rem; }
+            .rounded-full { border-radius: 9999px; }
+            .rounded-xl { border-radius: 0.75rem; }
+            .rounded-md { border-radius: 0.375rem; }
+            .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+            .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+            .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+            .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+            .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+            .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+            .text-xs { font-size: 0.75rem; line-height: 1rem; }
+            .font-bold { font-weight: 700; }
+            .font-semibold { font-weight: 600; }
+            .text-gray-800 { color: #1f2937; }
+            .text-gray-700 { color: #374151; }
+            .text-gray-600 { color: #4b5563; }
+            .text-gray-500 { color: #6b7280; }
+            .text-white { color: #ffffff; }
+            .text-blue-600 { color: #2563eb; }
+            .text-blue-700 { color: #1d4ed8; }
+            .text-red-600 { color: #dc2626; }
+            .text-red-700 { color: #b91c1c; }
+            .hover\:bg-gray-200:hover { background-color: #e5e7eb; }
+            .hover\:bg-gray-100:hover { background-color: #f3f4f6; }
+            .hover\:bg-blue-700:hover { background-color: #1d4ed8; }
+            .hover\:bg-red-700:hover { background-color: #b91c1c; }
+            .transition-colors { transition-property: background-color, border-color, color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+            .bg-white { background-color: #ffffff; }
+            .bg-gray-100 { background-color: #f3f4f6; }
+            .bg-gray-200 { background-color: #e5e7eb; }
+            .bg-blue-600 { background-color: #2563eb; }
+            .bg-red-600 { background-color: #dc2626; }
+            .bg-green-200 { background-color: var(--color-green-200); }
+            .bg-red-200 { background-color: var(--color-red-200); }
+            .bg-blue-200 { background-color: var(--color-blue-200); }
+            .border { border-width: 1px; }
+            .border-gray-300 { border-color: #d1d5db; }
+            .border-gray-200 { border-color: #e5e7eb; }
+            .w-full { width: 100%; }
+            .max-w-4xl { max-width: 56rem; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .block { display: block; }
+            .relative { position: relative; }
+            .absolute { position: absolute; }
+            .top-2 { top: 0.5rem; }
+            .left-2 { left: 0.5rem; }
+            .bottom-2 { bottom: 0.5rem; }
+            .right-2 { right: 0.5rem; }
+            .z-10 { z-index: 10; }
+            .h-4 { height: 1rem; }
+            .w-4 { width: 1rem; }
+            .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .flex-col { flex-direction: column; }
+            .self-end { align-self: flex-end; }
+            .border-b { border-bottom-width: 1px; }
+            .border-r { border-right-width: 1px; }
+            .day-cell {
+                min-height: 120px;
+                background-color: #ffffff;
+                position: relative;
+                cursor: pointer;
+                transition: transform 0.2s;
+                display: flex;
+                flex-direction: column;
+                padding: 8px;
+            }
+            .day-cell:hover {
+                transform: scale(1.02);
+                z-index: 10;
+            }
+            .day-header {
+                background-color: #e5e7eb;
+                font-weight: 600;
+                padding: 8px 0;
+                text-align: center;
+            }
+            .weekday-cell {
+                color: #4b5563;
+            }
+            .saturday {
+                color: var(--color-blue-500);
+            }
+            .sunday {
+                color: var(--color-red-500);
+            }
+            .holiday {
+                background-color: var(--color-red-200);
+            }
+            .working-day {
+                background-color: var(--color-green-200);
+            }
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 100;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                justify-content: center;
+                align-items: center;
+            }
+            .modal-content {
+                background-color: #ffffff;
+                padding: 24px;
+                border-radius: 0.75rem;
+                width: 90%;
+                max-width: 500px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .memo-mark {
+                position: absolute;
+                top: 0.25rem;
+                right: 0.25rem;
+                color: var(--color-yellow-500);
+                font-size: 1.5rem;
+                font-weight: bold;
+            }
+            .day-number {
+                font-size: 1.125rem;
+                font-weight: 600;
+            }
+            .memo-text {
+                position: absolute;
+                bottom: 8px;
+                left: 8px;
+                right: 8px;
+                text-align: left;
+                font-size: 0.75rem;
+                color: #6b7280;
+            }
+            .calendar-grid {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 1px;
+                background-color: #e5e7eb;
+                border-radius: 0.5rem;
+                overflow: hidden;
+            }
+            .day-cell {
+                min-height: 120px;
+                background-color: #ffffff;
+                position: relative;
+                cursor: pointer;
+                transition: transform 0.2s;
+                display: flex;
+                flex-direction: column;
+                padding: 8px;
+                box-sizing: border-box;
+            }
+            .day-cell:hover {
+                transform: scale(1.02);
+                z-index: 10;
+            }
         }
     </style>
 </head>
 <body class="p-8">
-
     <!-- メインコンテナ -->
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">
         
@@ -162,294 +272,205 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebaseの設定と初期化
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
+        // Firebaseとアプリのグローバル変数
+        let app, db, auth;
+        let userId;
         let currentMonth = new Date();
-        let selectedDate = null;
-        let userId = null;
-        const dailyCalendarData = {}; // デイリーカレンダーデータを格納するオブジェクト
+        let currentDayData = null; // 現在選択中の日付のデータを保持
+        let calendarData = {}; // Firestoreから取得したデータをキャッシュするオブジェクト
 
-        // データベースのパス設定
-        const getDailyCalendarRef = () => {
-            if (!userId) {
-                console.error("User ID is not set. Cannot get Firestore reference.");
-                return null;
-            }
-            return collection(db, 'artifacts', appId, 'users', userId, 'daily-calendar');
-        };
-        
-        // 認証状態の監視
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                console.log("User signed in:", userId);
-                await renderCalendar();
-                listenToDailyCalendar();
-            } else {
-                console.log("No user signed in, signing in anonymously...");
-                // __initial_auth_tokenが存在しない場合は匿名認証
-                if (typeof __initial_auth_token !== 'undefined') {
-                    try {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } catch (error) {
-                        console.error("Error signing in with custom token:", error);
-                        await signInAnonymously(auth);
-                    }
+        // グローバル変数からアプリのID、Firebase設定、認証トークンを取得
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // UI要素への参照
+        const monthDisplay = document.getElementById('month-display');
+        const calendarGrid = document.querySelector('.calendar-grid');
+        const modal = document.getElementById('modal');
+        const modalDate = document.getElementById('modal-date');
+        const statusSelect = document.getElementById('status-select');
+        const memoTextarea = document.getElementById('memo-textarea');
+        const saveButton = document.getElementById('save-button');
+        const deleteButton = document.getElementById('delete-button');
+        const workingDaysSummary = document.getElementById('working-days-summary');
+        const holidayDaysSummary = document.getElementById('holiday-days-summary');
+
+        /**
+         * Firebaseを初期化し、ユーザー認証を行う
+         */
+        async function initializeFirebase() {
+            try {
+                // Firebaseを初期化
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // 提供されたトークンでサインイン、トークンがなければ匿名でサインイン
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("カスタムトークンでサインインしました。");
                 } else {
-                     await signInAnonymously(auth);
+                    await signInAnonymously(auth);
+                    console.log("匿名でサインインしました。");
                 }
-            }
-        });
-        
-        // Firestoreからデイリーカレンダーの変更をリアルタイムで監視
-        function listenToDailyCalendar() {
-            const q = query(getDailyCalendarRef());
-            onSnapshot(q, (snapshot) => {
-                snapshot.docChanges().forEach(change => {
-                    const data = change.doc.data();
-                    if (change.type === "removed") {
-                        delete dailyCalendarData[data.date];
+
+                // 認証状態の変更を監視
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("ユーザーがUID:", userId, "でサインインしました。");
+                        loadCalendarData(); // 認証後にデータをロード
                     } else {
-                        dailyCalendarData[data.date] = data;
+                        console.log("ユーザーがサインアウトしました。");
+                        userId = null;
                     }
                 });
-                updateCalendarUI();
+            } catch (error) {
+                console.error("Firebaseの初期化に失敗しました:", error);
+            }
+        }
+
+        /**
+         * Firestoreからカレンダーデータをロードする
+         * onSnapshotでリアルタイムな変更を監視する
+         */
+        function loadCalendarData() {
+            if (!userId) {
+                console.warn("ユーザーIDが利用できません。データをロードできません。");
+                return;
+            }
+
+            const userCalendarPath = `artifacts/${appId}/users/${userId}/calendar-entries`;
+            const q = collection(db, userCalendarPath);
+
+            onSnapshot(q, (querySnapshot) => {
+                const tempCalendarData = {};
+                querySnapshot.forEach((doc) => {
+                    tempCalendarData[doc.id] = doc.data();
+                });
+                calendarData = tempCalendarData;
+                renderCalendar();
+                console.log("カレンダーデータが正常にロードされました。");
             }, (error) => {
-                console.error("Error listening to daily calendar:", error);
+                console.error("カレンダーデータのロード中にエラーが発生しました:", error);
             });
         }
 
-        // カレンダーを描画する
-        async function renderCalendar() {
-            const monthDisplay = document.getElementById('month-display');
-            const calendarGrid = document.querySelector('.calendar-grid');
-            const existingCells = calendarGrid.querySelectorAll('.day-cell');
-            existingCells.forEach(cell => cell.remove());
-
-            const month = currentMonth.getMonth();
-            const year = currentMonth.getFullYear();
-
-            // 月の表示を更新
-            monthDisplay.textContent = `${year}年${month + 1}月`;
-
-            // 月の最初の日と最後の日の曜日を取得
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            // 曜日ヘッダーの後に空のセルを追加して、最初の曜日を合わせる
-            // 日本の曜日は日曜(0)から始まるため、月曜(1)から合わせるために調整
-            const startDayIndex = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
-            for (let i = 0; i < startDayIndex; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = 'day-cell';
-                calendarGrid.appendChild(emptyCell);
-            }
-
-            // 日付セルを生成
-            for (let i = 1; i <= daysInMonth; i++) {
-                const date = new Date(year, month, i);
-                const dayOfWeek = date.getDay();
-
-                const cell = document.createElement('div');
-                cell.className = 'day-cell border-b border-r border-gray-200 text-sm relative';
-                
-                // 土日を判断
-                if (dayOfWeek === 6) {
-                    cell.classList.add('saturday');
-                } else if (dayOfWeek === 0) {
-                    cell.classList.add('sunday');
-                }
-                
-                // 日付番号を表示
-                const dayNumber = document.createElement('div');
-                dayNumber.textContent = i;
-                dayNumber.className = 'day-number absolute top-2 left-2';
-                cell.appendChild(dayNumber);
-
-                // セルのクリックイベント
-                cell.onclick = () => openModal(date);
-
-                calendarGrid.appendChild(cell);
-            }
-            updateCalendarUI();
-        }
-
-        // カレンダーUIを更新し、サマリーを計算する
-        function updateCalendarUI() {
-            const month = currentMonth.getMonth();
-            const year = currentMonth.getFullYear();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const calendarCells = document.querySelectorAll('.day-cell');
-            const dayOfWeekNames = ['日', '月', '火', '水', '木', '金', '土'];
-            const calendarTableData = {
-                '月': 'working', '火': 'working', '水': 'working', '木': 'working', '金': 'working',
-                '土': 'holiday', '日': 'holiday'
-            };
+        /**
+         * カレンダーUIをレンダリングする
+         */
+        function renderCalendar() {
+            // 既存のセルをクリア
+            calendarGrid.querySelectorAll('.day-cell').forEach(cell => cell.remove());
             
-            let workingDaysCount = 0;
-            let holidayDaysCount = 0;
+            // 月表示を更新
+            monthDisplay.textContent = new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'long' }).format(currentMonth);
 
-            let cellIndex = 0;
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
-            const startDayIndex = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+            
+            const firstDayOfWeek = (firstDayOfMonth.getDay() + 6) % 7; // 月曜日を週の始まりに
+            const daysInMonth = lastDayOfMonth.getDate();
 
-            for (let i = 1; i <= daysInMonth; i++) {
-                const date = new Date(year, month, i);
-                const dayOfWeek = dayOfWeekNames[date.getDay()];
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-                
-                let status = calendarTableData[dayOfWeek];
-                if (dailyCalendarData[dateStr] && dailyCalendarData[dateStr].status) {
-                    status = dailyCalendarData[dateStr].status;
+            // 月の始まりの空白セルを追加
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const blankCell = document.createElement('div');
+                blankCell.classList.add('day-cell');
+                blankCell.style.cursor = 'default';
+                calendarGrid.appendChild(blankCell);
+            }
+
+            let workingDays = 0;
+            let holidayDays = 0;
+
+            // 日付セルを追加
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.classList.add('day-cell');
+                const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                dayCell.setAttribute('data-date', dateKey);
+
+                const dayOfWeek = (new Date(year, month, day).getDay() + 6) % 7;
+                const isWeekend = dayOfWeek >= 5; // 土曜日または日曜日
+
+                const entry = calendarData[dateKey];
+                let status = 'working';
+                if (entry) {
+                    status = entry.status;
+                } else if (isWeekend) {
+                    status = 'holiday';
                 }
-
-                const cell = calendarCells[cellIndex + startDayIndex];
-                cell.classList.remove('working-day', 'holiday');
-                cell.classList.add(status === 'working' ? 'working-day' : 'holiday');
 
                 if (status === 'working') {
-                    workingDaysCount++;
+                    dayCell.classList.add('working-day');
+                    workingDays++;
                 } else {
-                    holidayDaysCount++;
+                    dayCell.classList.add('holiday');
+                    holidayDays++;
                 }
 
-                // 既存のメモマークを削除
-                let memoMark = cell.querySelector('.memo-mark');
-                if (memoMark) {
-                    memoMark.remove();
-                }
-                // 既存のメモを削除
-                let memoElement = cell.querySelector('.memo-text');
-                if (memoElement) {
-                    memoElement.remove();
-                }
+                dayCell.innerHTML = `
+                    <span class="day-number">${day}</span>
+                    <span class="memo-text mt-auto truncate">${entry ? entry.memo : ''}</span>
+                `;
 
-                if (dailyCalendarData[dateStr]) { // デイリーカレンダーが登録されているかチェック
-                    // *マークを追加 (メモの有無に関係なく表示)
-                    const mark = document.createElement('span');
-                    mark.className = 'memo-mark';
-                    mark.textContent = '*';
-                    cell.appendChild(mark);
+                dayCell.addEventListener('click', () => {
+                    openModal(dayCell.getAttribute('data-date'));
+                });
 
-                    // メモの内容を追加
-                    if (dailyCalendarData[dateStr].memo) {
-                        const memo = document.createElement('div');
-                        memo.textContent = dailyCalendarData[dateStr].memo;
-                        memo.className = 'memo-text text-xs text-gray-500 mt-auto truncate self-end';
-                        cell.appendChild(memo);
-                    }
-                }
-
-                cellIndex++;
+                calendarGrid.appendChild(dayCell);
             }
 
-            document.getElementById('working-days-summary').textContent = `稼働日: ${workingDaysCount}日`;
-            document.getElementById('holiday-days-summary').textContent = `休日: ${holidayDaysCount}日`;
+            // 凡例のサマリーを更新
+            workingDaysSummary.textContent = `稼働日: ${workingDays}日`;
+            holidayDaysSummary.textContent = `休日: ${holidayDays}日`;
         }
 
-        // 月を切り替える
+        /**
+         * 月を変更する
+         */
         function changeMonth(delta) {
             currentMonth.setMonth(currentMonth.getMonth() + delta);
             renderCalendar();
         }
-        window.changeMonth = changeMonth;
 
-        // モーダルを開く
+        /**
+         * 詳細モーダルを開く
+         */
         function openModal(date) {
-            selectedDate = date;
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
+            modalDate.textContent = new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(date));
             
-            document.getElementById('modal-date').textContent = `${year}年${month}月${day}日`;
+            currentDayData = { date };
+            const entry = calendarData[date];
             
-            const existingData = dailyCalendarData[dateStr] || {};
-            document.getElementById('status-select').value = existingData.status || 'working';
-            document.getElementById('memo-textarea').value = existingData.memo || '';
-            
-            const deleteButton = document.getElementById('delete-button');
-            if (dailyCalendarData[dateStr]) {
-                deleteButton.style.display = 'block';
+            if (entry) {
+                statusSelect.value = entry.status;
+                memoTextarea.value = entry.memo || '';
+                deleteButton.style.display = 'inline-block';
             } else {
+                statusSelect.value = 'working';
+                memoTextarea.value = '';
                 deleteButton.style.display = 'none';
             }
 
-            document.getElementById('modal').style.display = 'flex';
+            modal.style.display = 'flex';
         }
-        window.openModal = openModal;
 
-        // モーダルを閉じる
+        /**
+         * 詳細モーダルを閉じる
+         */
         function closeModal() {
-            document.getElementById('modal').style.display = 'none';
+            modal.style.display = 'none';
         }
-        window.closeModal = closeModal;
 
-        // デイリーカレンダーを保存する
+        /**
+         * 日付の情報をFirestoreに保存する
+         */
         async function saveDailyCalendar() {
-            if (!selectedDate || !userId) {
-                console.error("No date selected or user not authenticated.");
-                return;
-            }
-
-            const year = selectedDate.getFullYear();
-            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-            const day = String(selectedDate.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
-            const status = document.getElementById('status-select').value;
-            const memo = document.getElementById('memo-textarea').value.trim();
-            
-            const docRef = doc(getDailyCalendarRef(), dateStr);
-            
-            try {
-                await setDoc(docRef, {
-                    date: dateStr,
-                    status: status,
-                    memo: memo,
-                    calendarId: 'default'
-                });
-                console.log("Document successfully written!");
-                closeModal();
-            } catch (e) {
-                console.error("Error writing document: ", e);
-            }
-        }
-        window.saveDailyCalendar = saveDailyCalendar;
-
-        // デイリーカレンダーを削除する
-        async function deleteDailyCalendar() {
-            if (!selectedDate || !userId) {
-                console.error("No date selected or user not authenticated.");
-                return;
-            }
-
-            const year = selectedDate.getFullYear();
-            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-            const day = String(selectedDate.getDate()).padStart(2, '0');
-            const dateStr = `${year}-${month}-${day}`;
-            
-            const docRef = doc(getDailyCalendarRef(), dateStr);
-
-            try {
-                await deleteDoc(docRef);
-                closeModal();
-                console.log("Document successfully deleted!");
-            } catch (e) {
-                console.error("Error deleting document: ", e);
-            }
-        }
-        window.deleteDailyCalendar = deleteDailyCalendar;
-        
-        // ページロード時にカレンダーを初期化
-        renderCalendar();
-
-    </script>
-</body>
-</html>
+            if (!userId) {
+                cons
