@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>カレンダーウェブアプリ</title>
@@ -154,10 +154,10 @@
             }
             .memo-mark {
                 position: absolute;
-                top: 0.25rem;
-                right: 0.25rem;
-                color: var(--color-yellow-500);
-                font-size: 1.5rem;
+                bottom: 8px;
+                right: 8px;
+                color: var(--color-blue-500);
+                font-size: 1rem;
                 font-weight: bold;
             }
             .day-number {
@@ -207,10 +207,12 @@
         <div class="flex items-center justify-between mb-6">
             <h1 id="month-display" class="text-3xl font-bold text-gray-800">2025年9月</h1>
             <div class="flex items-center space-x-4">
-                <button onclick="changeMonth(-1)" class="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200">
+                <!-- 矢印を正しく中央に配置するために flex クラスを追加 -->
+                <button onclick="changeMonth(-1)" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-200 transition-colors duration-200">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
-                <button onclick="changeMonth(1)" class="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200">
+                <!-- 矢印を正しく中央に配置するために flex クラスを追加 -->
+                <button onclick="changeMonth(1)" class="flex items-center justify-center p-2 rounded-full hover:bg-gray-200 transition-colors duration-200">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
             </div>
@@ -294,7 +296,6 @@
         const modalDate = document.getElementById('modal-date');
         const statusSelect = document.getElementById('status-select');
         const memoTextarea = document.getElementById('memo-textarea');
-        const saveButton = document.getElementById('save-button');
         const deleteButton = document.getElementById('delete-button');
         const workingDaysSummary = document.getElementById('working-days-summary');
         const holidayDaysSummary = document.getElementById('holiday-days-summary');
@@ -383,6 +384,7 @@
                 const blankCell = document.createElement('div');
                 blankCell.classList.add('day-cell');
                 blankCell.style.cursor = 'default';
+                blankCell.style.backgroundColor = 'var(--color-neutral-100)';
                 calendarGrid.appendChild(blankCell);
             }
 
@@ -400,11 +402,9 @@
                 const isWeekend = dayOfWeek >= 5; // 土曜日または日曜日
 
                 const entry = calendarData[dateKey];
-                let status = 'working';
-                if (entry) {
+                let status = isWeekend ? 'holiday' : 'working';
+                if (entry && entry.status) {
                     status = entry.status;
-                } else if (isWeekend) {
-                    status = 'holiday';
                 }
 
                 if (status === 'working') {
@@ -414,10 +414,11 @@
                     dayCell.classList.add('holiday');
                     holidayDays++;
                 }
-
+                
                 dayCell.innerHTML = `
                     <span class="day-number">${day}</span>
                     <span class="memo-text mt-auto truncate">${entry ? entry.memo : ''}</span>
+                    ${entry && entry.memo ? '<span class="memo-mark">*</span>' : ''}
                 `;
 
                 dayCell.addEventListener('click', () => {
